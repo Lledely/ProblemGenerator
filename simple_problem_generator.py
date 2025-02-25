@@ -61,19 +61,19 @@ def generate_problem():
 def transform_to_latex(constraints, objective, solution, headers=None):
     if headers is None:
         headers = "\\documentclass{article}\n\\usepackage{amsmath}\n"
-    latex_code = headers
-    latex_code += "\\begin{document}\n"
-    latex_code += "\\section*{Problem Statement}\n"
-    latex_code += "\\[\n"
-    latex_code += "\\begin{cases}\n"
-    for constraint in constraints:
-        latex_code += f"{constraint} \\\\\n"
-    latex_code += "\\end{cases}\n"
-    latex_code += "\\]\n"
-    latex_code += f"\\textbf{{Objective: }} $\\displaystyle {objective}$\n"
-    latex_code += "\\section*{Optimal non-integer solution} "
-    latex_code += f"$({round(solution[0], 2)}, {round(solution[1], 2)})$\n"
-    latex_code += "\\end{document}"
+    latex_code += f"""{headers}
+    \\begin{{document}}
+    \\section*{{Problem Statement}}
+    \\[
+    \\begin{{cases}}
+        {'\n'.join(constraint + '\\\\' for constraint in constraints)}
+    \\end{{cases}}
+    \\]
+    \\textbf{{Objective: }} $\\displaystyle {objective}$
+    \\section*{{Optimal non-integer solution}}
+    $({round(solution[0], 2)}, {round(solution[1], 2)})$
+    \\end{{document}}
+    """
     return latex_code
 
 def write_to_latex(filename, latex_code):
