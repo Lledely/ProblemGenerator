@@ -5,6 +5,7 @@ def simplex_method(constraints, objective_function):
     variables = list(objective_function.free_symbols)
     if len(variables) != 2:
         raise ValueError("This implementation supports only two variables.")
+    variables = [str(var) for var in variables]
 
     equations = []
     for constraint in constraints:
@@ -22,12 +23,21 @@ def simplex_method(constraints, objective_function):
         row = []
         coeffs = eq.lhs.as_coefficients_dict()
         for key, val in coeffs.items():
-            if key != 1:
+            if str(key) in variables:
                 row.append(val)
+            else:
+                row.append(0)
         row.append(eq.rhs if eq.rhs.is_number else 0)
         tableau.append(row)
 
-    obj_row = [-objective_function.as_coefficients_dict().get(var, 0) for var in variables]
+    obj_row = []
+    obj_coeffs = objective_function.as_coefficients_dict()
+    for key, val in obj_coeffs.items():
+        if str(key) in variables:
+            obj_row.append(-val)
+        else:
+            obj_row.append(0)
+
     obj_row.append(0)
     tableau.append(obj_row)
 
