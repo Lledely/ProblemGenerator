@@ -1,71 +1,37 @@
 import random
-from constants import constraints_upper_bound, constraints_lower_bound
-from scipy.optimize import linprog
-import simple_geometry
+from constants import constraints_upper_bound, constraints_lower_bound, third_point_max_shift
+from sympy.geometry import Point, Line
+from sympy import Rational, Eq, Symbol
+from math import ceil
 
-def generate_problem() -> tuple[list[str], str, tuple[float, float]]:
-    while True:
-        point1 = simple_geometry.Point(random.randint(constraints_lower_bound, constraints_upper_bound), 0)
-        vector1 = simple_geometry.Vector(random.randint(constraints_lower_bound, constraints_upper_bound), 
-                                         random.randint(constraints_lower_bound, constraints_upper_bound))
-        point2 = point1 + vector1
+def generate_objective_function(point: "Point"):
+    coefficient_x = Rational(random.randint(1, 10), random.randint(1, 10))
+    coefficient_y = Rational(random.randint(1, 10), random.randint(1, 10))
+    
+    objective_function = coefficient_x * point.x * Symbol("x") + coefficient_y * point.y * Symbol("y")
+    return objective_function
 
-        vector_shift = random.uniform(0, 1)
-        shift_vector = vector1 * vector_shift
-        normal_vector = vector1.normal_vector()
-        vector_length = random.randint(constraints_lower_bound, constraints_upper_bound)
-        point3 = (point1 + shift_vector) + normal_vector * vector_length
+def generate_problem(is_dual: bool = False):
+    point1 = Point(0, random.randint(constraints_lower_bound, constraints_upper_bound))
+    point2 = Point(random.randint(constraints_lower_bound, constraints_upper_bound), 0)
 
-        problem_triangle = simple_geometry.Triangle(point1, point2, point3)
+    middle_point = (point1 + point2) / 2
+    point3_shift = random.uniform(1, third_point_max_shift)
 
-        scale_factor = min(constraints_upper_bound / max(problem_triangle.point1.x, problem_triangle.point2.x, problem_triangle.point3.x, 1),
-                           constraints_upper_bound / max(problem_triangle.point1.y, problem_triangle.point2.y, problem_triangle.point3.y, 1))
-        problem_triangle.scale(scale_factor)
+    point3_float = middle_point * point3_shift
+    point3 = Point(ceil(point3_float.x), ceil(point3_float.y))
 
-        shift_vector = simple_geometry.Vector(constraints_lower_bound - min(problem_triangle.point1.x, problem_triangle.point2.x, problem_triangle.point3.x),
-                                              constraints_lower_bound - min(problem_triangle.point1.y, problem_triangle.point2.y, problem_triangle.point3.y))
-        problem_triangle.shift(shift_vector)
-        problem_triangle.make_integer()
+    points = [point1, point3, point2]
 
-        x1, y1, x2, y2, x3, y3 = problem_triangle.point1.x, problem_triangle.point1.y, problem_triangle.point2.x, problem_triangle.point2.y, problem_triangle.point3.x, problem_triangle.point3.y
+    if is_dual:
+        points.append(Point(0, 0))
 
-        constraints = [
-            f"{y2 - y1}x_1 - {x2 - x1}x_2 \\geq {round(y2*x1 - x2*y1, 2)}",
-            f"{round(y3 - y1, 2)}x_1 - {round(x3 - x1, 2)}x_2 \\geq {round(y3*x1 - x3*y1, 2)}",
-            f"{round(y3 - y2, 2)}x_1 - {round(x3 - x2, 2)}x_2 \\geq {round(y3*x2 - x3*y2, 2)}",
-            "x_1, x_2 \\geq 0",
-            "x_1, x_2 \\in \\mathbb{Z}"
-        ]
-
-        a = random.randint(1, 10)
-        b = random.randint(1, 10)
-        objective = f"F = {a}x_1 + {b}x_2 \\rightarrow \\text{{max}}"
-
-        # Check if the problem is solvable using linear programming
-        c = [-a, -b]  # Coefficients for the objective function (negated for maximization)
-        A = [
-            [y2 - y1, -(x2 - x1)],
-            [y3 - y1, -(x3 - x1)],
-            [y3 - y2, -(x3 - x2)]
-        ]
-        b_values = [
-            round(y2 * x1 - x2 * y1, 2),
-            round(y3 * x1 - x3 * y1, 2),
-            round(y3 * x2 - x3 * y2, 2)
-        ]
-        bounds = [(0, None), (0, None)]
-
-        res = linprog(c, A_ub=A, b_ub=b_values, bounds=bounds, method='highs')
-
-        if res.success:
-            print("Problem Statement:")
-            for constraint in constraints:
-                print(constraint)
-            print(objective)
-
-            # Optimal solution
-            print(f"Optimal solution ({round(x3, 2)},{round(y3, 2)})")
-
-            return constraints, objective, (x3, y3)
-        else:
-            print("The generated problem is not solvable. Generating a new problem...")
+    constraints = []
+    for i in range(len(points)):
+        line = Line(points[i], points[(i + 1) % len(points)])
+        equation = line.equation()
+        inequality = equation >= 0
+        constraints.append(inequality)
+    
+    objective_function = generate_objective_function(point3)
+    return constraints, objective_function
