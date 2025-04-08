@@ -12,6 +12,7 @@ def write_problems_to_latex(constraints, objective_functions, filename=default_l
         write_to_latex(filename, beginning)
         for constraint in constraints[i]:
             write_to_latex(filename, f"\\item ${latex(constraint)}$\n")
+        write_to_latex(filename, f"\\item $x, y \\geq 0$\n")
         write_to_latex(filename, f"\\end{{itemize}}\n")
         write_to_latex(filename, "\\subsection*{Целевая функция}\n")
         write_to_latex(filename, f"\\begin{{equation}} {latex(objective_functions[i])} \\longrightarrow \\max \\end{{equation}}\n")

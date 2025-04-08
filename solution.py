@@ -71,14 +71,17 @@ def simplex_method(constraints, objective_function):
         coeffs_as_strings = {}
         for key, value in coeffs_as_symbols.items():
             coeffs_as_strings[str(key)] = value
-        A.append([coeffs_as_strings[var] for var in variables])
-        b.append(coeffs_as_strings["1"])
+        A.append([coeffs_as_strings.get(var, 0) for var in variables])
+        b.append(-coeffs_as_strings["1"])
         
     for i in range(len(A)):
-        A[i].extend([0] * len(A))
-        A[i][len(A) + i - 1] = 1
+        tmp = [0] * len(A)
+        tmp[i] = 1
+        A[i].extend(tmp)
     
-    c = [objective_function.coeff(var) for var in variables] + [0] * len(A)
+    coeffs_as_symbols = objective_function.as_coefficients_dict()
+    coeffs_as_strings = {}
+    c = [coeffs_as_strings.get(var, 0) for var in variables] + [0] * len(A)
 
     tableau = to_tableau(c, A, b)
     simplex_tables = [Matrix(tableau)]

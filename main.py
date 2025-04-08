@@ -17,11 +17,10 @@ if __name__ == "__main__":
 
     # x, y = symbols('x y')
     # constrains = [
-    #     Eq(-2 * x + 10 * y, 20),
-    #     Eq(-2 * x - 6 * y, -12),
-    #     Eq(4 * x - 4 * y, 24)
+    #     Eq(-5 * x + 17 * y - 68, 0),
+    #     Eq(9 * x - 9 * y - 72, 0)
     # ]
-    # obj = 40 * x + 5 * y
+    # obj = 12 * x + 22 * y
     # stuff = solution.simplex_method(constrains, obj)
     # latex_handler.write_solutions_to_latex([stuff[0]], [stuff[1]])
 
@@ -29,7 +28,7 @@ if __name__ == "__main__":
 
     constraints, objectives = [], []
     for _ in range(number_of_variants):
-        constraints_, objective_ = generate_problem()
+        constraints_, objective_ = generate_problem(is_dual=True)
         constraints.append(constraints_)
         objectives.append(objective_)
     latex_handler.write_problems_to_latex(constraints, objectives)

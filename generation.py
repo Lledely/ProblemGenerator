@@ -24,11 +24,10 @@ def generate_problem(is_dual: bool = False):
 
     points = [point1, point3, point2]
 
-    if is_dual:
-        points.append(Point(0, 0))
-
     constraints = []
     for i in range(len(points)):
+        if not is_dual and i == len(points) - 1:
+            break
         line = Line(points[i], points[(i + 1) % len(points)])
         equation = line.equation()
         inequality = equation <= 0
