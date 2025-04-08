@@ -1,14 +1,14 @@
 import random
 from constants import constraints_upper_bound, constraints_lower_bound, third_point_max_shift
 from sympy.geometry import Point, Line
-from sympy import Rational, Eq, Symbol
+from sympy import Symbol
 from math import ceil
 
 def generate_objective_function(point: "Point"):
     x = Symbol('x')
     y = Symbol('y')
-    coeff_x = Rational(random.randint(1, 10), random.randint(1, 10))
-    coeff_y = Rational(random.randint(1, 10), random.randint(1, 10))
+    coeff_x = random.randint(constraints_lower_bound, constraints_upper_bound)
+    coeff_y = random.randint(constraints_lower_bound, constraints_upper_bound)
     objective_function = coeff_x* point.x * x + coeff_y * point.y * y
     return objective_function
 

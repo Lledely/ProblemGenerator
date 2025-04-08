@@ -12,8 +12,6 @@ def prompt_user() -> int:
     return int(number_of_variants)
 
 if __name__ == "__main__":
-    os.remove(latex_handler.default_latex_problems_file_name) if os.path.exists(latex_handler.default_latex_problems_file_name) else None
-    os.remove(latex_handler.default_latex_solutions_file_name) if os.path.exists(latex_handler.default_latex_solutions_file_name) else None
 
     # x, y = symbols('x y')
     # constrains = [
@@ -31,6 +29,7 @@ if __name__ == "__main__":
         constraints_, objective_ = generate_problem(is_dual=True)
         constraints.append(constraints_)
         objectives.append(objective_)
+    os.remove(latex_handler.default_latex_problems_file_name) if os.path.exists(latex_handler.default_latex_problems_file_name) else None
     latex_handler.write_problems_to_latex(constraints, objectives)
 
     all_tables, opt_solutions = [], []
@@ -38,4 +37,5 @@ if __name__ == "__main__":
         simplex_tables, optimal_solution = solution.simplex_method(constraints[i], objectives[i])
         all_tables.append(simplex_tables)
         opt_solutions.append(optimal_solution)
+    os.remove(latex_handler.default_latex_solutions_file_name) if os.path.exists(latex_handler.default_latex_solutions_file_name) else None
     latex_handler.write_solutions_to_latex(all_tables, opt_solutions)
