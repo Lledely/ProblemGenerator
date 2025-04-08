@@ -61,7 +61,7 @@ def simplex_method(constraints, objective_function):
         if constraint.rel_op == '>=':
             equations.append(Eq(constraint.lhs - constraint.rhs, 0))
         elif constraint.rel_op == '<=':
-            equations.append(Eq(constraint.rhs - constraint.lhs, 0))
+            equations.append(Eq(constraint.lhs - constraint.rhs, 0))
         else:
             equations.append(Eq(constraint.lhs, constraint.rhs))
     A, b = [], []
@@ -81,6 +81,8 @@ def simplex_method(constraints, objective_function):
     
     coeffs_as_symbols = objective_function.as_coefficients_dict()
     coeffs_as_strings = {}
+    for key, value in coeffs_as_symbols.items():
+        coeffs_as_strings[str(key)] = value
     c = [coeffs_as_strings.get(var, 0) for var in variables] + [0] * len(A)
 
     tableau = to_tableau(c, A, b)
@@ -91,5 +93,5 @@ def simplex_method(constraints, objective_function):
         tableau = pivot_step(tableau, pivot_position)
         simplex_tables.append(Matrix(tableau))
 
-    return simplex_tables, Matrix(get_solution(tableau))
+    return simplex_tables, Matrix(get_solution(tableau)[:len(variables)])
     

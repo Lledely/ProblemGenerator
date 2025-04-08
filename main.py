@@ -15,11 +15,13 @@ if __name__ == "__main__":
 
     # x, y = symbols('x y')
     # constrains = [
-    #     Eq(-5 * x + 17 * y - 68, 0),
-    #     Eq(9 * x - 9 * y - 72, 0)
+    #     Eq(0 * x + 1 * y - 2, 0),
+    #     Eq(1 * x - 0 * y - 1, 0),
+    #     Eq(-2 * x - 1 * y + 2, 0)
     # ]
-    # obj = 12 * x + 22 * y
+    # obj = 10 * x + 4 * y
     # stuff = solution.simplex_method(constrains, obj)
+    # os.remove(latex_handler.default_latex_solutions_file_name) if os.path.exists(latex_handler.default_latex_solutions_file_name) else None
     # latex_handler.write_solutions_to_latex([stuff[0]], [stuff[1]])
 
     number_of_variants = prompt_user()
@@ -34,8 +36,9 @@ if __name__ == "__main__":
 
     all_tables, opt_solutions = [], []
     for i in range(len(constraints)):
-        simplex_tables, optimal_solution = solution.simplex_method(constraints[i], objectives[i])
-        all_tables.append(simplex_tables)
-        opt_solutions.append(optimal_solution)
+        stuff = solution.simplex_method(constraints[i], objectives[i])
+        # simplex_tables, optimal_solution = solution.simplex_method(constraints[i], objectives[i])
+        all_tables.append(stuff[0])
+        opt_solutions.append(stuff[1])
     os.remove(latex_handler.default_latex_solutions_file_name) if os.path.exists(latex_handler.default_latex_solutions_file_name) else None
     latex_handler.write_solutions_to_latex(all_tables, opt_solutions)
