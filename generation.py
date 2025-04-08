@@ -5,10 +5,11 @@ from sympy import Rational, Eq, Symbol
 from math import ceil
 
 def generate_objective_function(point: "Point"):
-    coefficient_x = Rational(1, point.x) if point.x != 0 else 0
-    coefficient_y = Rational(1, point.y) if point.y != 0 else 0
-    
-    objective_function = coefficient_x * Symbol("x") + coefficient_y * Symbol("y")
+    x = Symbol('x')
+    y = Symbol('y')
+    coeff_x = Rational(random.randint(1, 10), random.randint(1, 10))
+    coeff_y = Rational(random.randint(1, 10), random.randint(1, 10))
+    objective_function = coeff_x* point.x * x + coeff_y * point.y * y
     return objective_function
 
 def generate_problem(is_dual: bool = False):
