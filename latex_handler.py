@@ -1,4 +1,4 @@
-from sympy import latex
+from sympy import latex, shape
 from constants import default_latex_headers, default_latex_problems_file_name, default_latex_solutions_file_name
 
 def write_problems_to_latex(constraints, objective_functions, filename=default_latex_problems_file_name):
@@ -24,20 +24,21 @@ def write_solutions_to_latex(simplex_tables, optimal_solutions, filename=default
 
     for i in range(len(simplex_tables)):
         write_to_latex(filename, f"\\section*{{Вариант {i + 1}}}\n")
-        write_to_latex(filename, "\\subsection*{Таблица симплекс-метода}\n")
-        write_to_latex(filename, "\\begin{center}\n")
-        write_to_latex(filename, "\\begin{tabular}{|c|" + "|".join(["c"] * (len(simplex_tables[i][0]) - 1)) + "|}\n")
-        write_to_latex(filename, "\\hline\n")
-        
-        for row in simplex_tables[i]:
-            write_to_latex(filename, " & ".join([latex(cell) for cell in row]) + " \\\\\n")
+        write_to_latex(filename, "\\subsection*{Таблицы решения}\n")
+        for j in range(len(simplex_tables[i])):
+            write_to_latex(filename, f"\\subsubsection*{{Таблица {j + 1}}}\n")
+            write_to_latex(filename, "\\begin{center}\n")
+            write_to_latex(filename, "\\begin{tabular}{|c|" + "|".join(["c"] * (len(simplex_tables[i][0]) - 1)) + "|}\n")
             write_to_latex(filename, "\\hline\n")
+            for row in range(shape(simplex_tables[i][j])[0]):
+                write_to_latex(filename, " & ".join([f"${latex(cell)}$" for cell in simplex_tables[i][j].row(row)]) + "\\\\\n")
+                write_to_latex(filename, "\\hline\n")
+            write_to_latex(filename, "\\end{tabular}\n")
+            write_to_latex(filename, "\\end{center}\n")
         
-        write_to_latex(filename, "\\end{tabular}\n")
-        write_to_latex(filename, "\\end{center}\n")
         write_to_latex(filename, "\\subsection*{Оптимальное решение}\n")
         write_to_latex(filename, "\\begin{equation}\n")
-        write_to_latex(filename, f"{latex(optimal_solutions[i])}\n")
+        write_to_latex(filename, f"{latex(optimal_solutions[i].T)}^{{T}}\n")
         write_to_latex(filename, "\\end{equation}\n")
 
     write_to_latex(filename, f"\\end{{document}}")

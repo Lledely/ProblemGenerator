@@ -53,31 +53,40 @@ def get_solution(tableau):
     return solutions
 
 def simplex_method(constraints, objective_function):
-    # Extract variables from the objective function
-    variables = list(objective_function.free_symbols)
+    variables = list(str(symbol) for symbol in objective_function.free_symbols)
     
-    # Convert constraints into matrix form
-    A, b = [], []
+
+    equations = []
     for constraint in constraints:
-        lhs, rhs = constraint.lhs, constraint.rhs
-        if isinstance(constraint, (Ge, Le, Eq)):
-            A.append([lhs.coeff(var) for var in variables])
-            b.append(rhs)
+        if constraint.rel_op == '>=':
+            equations.append(Eq(constraint.lhs - constraint.rhs, 0))
+        elif constraint.rel_op == '<=':
+            equations.append(Eq(constraint.rhs - constraint.lhs, 0))
         else:
-            raise ValueError("Unsupported constraint type")
+            equations.append(Eq(constraint.lhs, constraint.rhs))
+    A, b = [], []
+    for constraint in equations:
+        lhs = constraint.lhs
+        coeffs_as_symbols = lhs.as_coefficients_dict()
+        coeffs_as_strings = {}
+        for key, value in coeffs_as_symbols.items():
+            coeffs_as_strings[str(key)] = value
+        A.append([coeffs_as_strings[var] for var in variables])
+        b.append(coeffs_as_strings["1"])
         
     for i in range(len(A)):
         A[i].extend([0] * len(A))
         A[i][len(A) + i - 1] = 1
     
-    c = [objective_function.coeff(var) for var in variables]
-    c.extend([0] * len(A))
+    c = [objective_function.coeff(var) for var in variables] + [0] * len(A)
 
     tableau = to_tableau(c, A, b)
+    simplex_tables = [Matrix(tableau)]
 
     while can_be_improved(tableau):
         pivot_position = get_pivot_position(tableau)
         tableau = pivot_step(tableau, pivot_position)
+        simplex_tables.append(Matrix(tableau))
 
-    return get_solution(tableau)
+    return simplex_tables, Matrix(get_solution(tableau))
     
