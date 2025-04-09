@@ -87,11 +87,18 @@ def simplex_method(constraints, objective_function):
 
     tableau = to_tableau(c, A, b)
     simplex_tables = [Matrix(tableau)]
+    table_first_row = variables + [f'$s_{i + 1}$' for i in range(len(A))] + ['rhs']
+    table_first_column = [[f's_{i + 1}' for i in range(len(A))] + ['z']]
 
     while can_be_improved(tableau):
         pivot_position = get_pivot_position(tableau)
+
+        tmp = table_first_column[-1][:]
+        tmp[pivot_position[0]] = table_first_row[pivot_position[1]]
+        table_first_column.append(tmp)
+
         tableau = pivot_step(tableau, pivot_position)
         simplex_tables.append(Matrix(tableau))
 
-    return simplex_tables, Matrix(get_solution(tableau)[:len(variables)])
+    return simplex_tables, Matrix(get_solution(tableau)[:len(variables)]), table_first_row, table_first_column
     
