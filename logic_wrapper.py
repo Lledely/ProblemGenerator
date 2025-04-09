@@ -10,6 +10,13 @@ def prompt_user() -> int:
         number_of_variants = input("Введите количество вариантов: ")
     return int(number_of_variants)
 
+def check_file_name(name: str) -> bool:
+    if not name.endswith(".tex"):
+        return False
+    if len(name) < 4:
+        return False
+    return True
+
 def generate(
         number_of_variants: int, 
         do_dual: bool = False,
