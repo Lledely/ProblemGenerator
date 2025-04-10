@@ -13,7 +13,15 @@ def can_be_improved(tableau):
 
 def get_pivot_position(tableau):
     z = tableau[-1]
-    column = next(i for i, x in enumerate(z[:-1]) if x > 0)
+    tmp_val = 0
+    tmp_inx = -1
+    for i, x in enumerate(z):
+        if x > 0:
+            if x > abs(tmp_val):
+                tmp_val = -x
+                tmp_inx = i
+    column = tmp_inx
+    # column = next(i for i, x in enumerate(z[:-1]) if x > 0)
     
     restrictions = []
     for eq in tableau[:-1]:
@@ -53,9 +61,8 @@ def get_solution(tableau):
     return solutions
 
 def simplex_method(constraints, objective_function):
-    variables = list(str(symbol) for symbol in objective_function.free_symbols)
+    variables = ['x', 'y']
     
-
     equations = []
     for constraint in constraints:
         if constraint.rel_op == '>=':
@@ -86,7 +93,9 @@ def simplex_method(constraints, objective_function):
     c = [coeffs_as_strings.get(var, 0) for var in variables] + [0] * len(A)
 
     tableau = to_tableau(c, A, b)
-    simplex_tables = [Matrix(tableau)]
+    tmp = tableau[:]
+    tmp[-1] = list(map(lambda x: -x, tmp[-1]))
+    simplex_tables = [Matrix(tmp)]
     table_first_row = variables + [f'$s_{i + 1}$' for i in range(len(A))] + ['rhs']
     table_first_column = [[f's_{i + 1}' for i in range(len(A))] + ['z']]
 
@@ -98,7 +107,9 @@ def simplex_method(constraints, objective_function):
         table_first_column.append(tmp)
 
         tableau = pivot_step(tableau, pivot_position)
-        simplex_tables.append(Matrix(tableau))
+        tmp = tableau[:]
+        tmp[-1] = list(map(lambda x: -x, tmp[-1]))
+        simplex_tables.append(Matrix(tmp))
 
-    return simplex_tables, Matrix(get_solution(tableau)[:len(variables)]), table_first_row, table_first_column
+    return simplex_tables, get_solution(tableau)[:len(variables)] + [abs(tableau[-1][-1])], table_first_row, table_first_column
     
